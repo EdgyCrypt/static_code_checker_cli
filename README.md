@@ -1,0 +1,1 @@
+static_code_checker_cli
