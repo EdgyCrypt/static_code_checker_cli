@@ -4,7 +4,6 @@ import webbrowser
 
 compiled_langauges = ['Java']
 
-
 class ProgramingLanguage():
     def __init__(self, name: str, file_type: str, compiler_command: str, execute_command: str = None, compiled_type: str = None):
         self.name = name
@@ -47,7 +46,6 @@ class ProgramingLanguage():
 def run(line):
     return subprocess.Popen(line, stdout=subprocess.PIPE).communicate()[0]
 
-
 def findPythonCommand():
     possible_commands = ['python', 'python3', 'py', 'py3']
     for command in possible_commands:
@@ -60,7 +58,6 @@ def findPythonCommand():
 
         if '3' in output.decode("utf-8"):
             return command
-
 
 startHTML= """
 <head>
@@ -88,7 +85,16 @@ langauges.append(ProgramingLanguage(
 langauges.append(ProgramingLanguage(
     'Python', '.py', findPythonCommand(), None, None))
 
+all_files = []
+for r, d, f in os.walk(os.getcwd()):
+    for file in f:
+        file = os.path.join(r, file)
+
+        for langauge in langauges:
+            if langauge.file_type in file:
+                print(langauge.run_file(file))
+
 with open('static_code_checker.html', 'w+') as f:
     f.write(startHTML + endHTML)
 
-webbrowser.open_new_tab('static_code_checker.html')
+# webbrowser.open_new_tab('static_code_checker.html')
