@@ -1,65 +1,26 @@
 import os
-import subprocess
+import sys
 import webbrowser
 
-compiled_langauges = ['Java']
+try:
+    from code_file import  File
+except :
+    from static_code_checker.code_file import File
 
-class ProgramingLanguage():
-    def __init__(self, name: str, file_type: str, compiler_command: str, execute_command: str = None, compiled_type: str = None):
-        self.name = name
+def file_parser(line):
+    # is a file
+    if os._exists(line):
+        contents = ''
+        with open(line, 'r') as reader:
+            for i in reader.readlines():
+                contents += i
+        contents.split('^^^')
+        return contents
+    else:
+        return line
+        
 
-        if self.name in compiled_langauges:
-            self.compiled = True
-        else:
-            self.compiled = False
-
-        self.file_type = file_type
-        self.compiled_type = compiled_type
-        self.compiler_command = compiler_command
-        self.execute_command = execute_command
-
-    def __repr__(self):
-        return f"""
-        {self.name} 
-            COMPILED?:      {self.compiled}
-            FILE_TYPE:      {self.file_type}
-            COMPILED_TYPE:  {self.compiled_type}
-            COMPILER_CM:    {self.compiler_command}
-            EXECUTE_CM:     {self.execute_command}
-
-        """
-
-    def run_file(self, file, args:list = None):
-        if self.compiled:
-            run([self.compiler_command, file])
-            file = file.replace(self.file_type, self.compiled_type)
-            if args is None:
-                return run([self.execute_command, file, *args])
-            else:
-                return run([self.execute_command, file])
-        else:
-            if args is None:
-                return run([self.execute_command, file, *args])
-            else:
-                return run([self.execute_command, file])
-
-def run(line):
-    return subprocess.Popen(line, stdout=subprocess.PIPE).communicate()[0]
-
-def findPythonCommand():
-    possible_commands = ['python', 'python3', 'py', 'py3']
-    for command in possible_commands:
-        line = [command, '--version']
-
-        try:
-            output = run(line)
-        except:
-            continue
-
-        if '3' in output.decode("utf-8"):
-            return command
-
-startHTML= """
+startHTML = """
 <head>
     <meta charset="utf-8">
     <title>Static Code Checker</title>
@@ -76,25 +37,33 @@ startHTML= """
 
 endHTML = """
     </div>
-<body>
+</body>
 """
 
-langauges = []
-langauges.append(ProgramingLanguage(
-    'Java', '.java', 'javac', 'java', '.class'))
-langauges.append(ProgramingLanguage(
-    'Python', '.py', findPythonCommand(), None, None))
+files = []
+io_files = sys.argv
+for i in range(io_files):
+    if i > 1:
+        break
+    io_files[i] = file_parser(io_files[i])
 
-all_files = []
+
 for r, d, f in os.walk(os.getcwd()):
     for file in f:
-        file = os.path.join(r, file)
+        files.append(os.path.join(r, file), *io_files)
+        
+for i in range(files):
+    if not files[i].cleared:
+        del files[i]
+    if io_files[2]:
+        if 'driver' not in file[i].file_loc:
+            del files[i]
+    
 
-        for langauge in langauges:
-            if langauge.file_type in file:
-                print(langauge.run_file(file))
+
+
 
 with open('static_code_checker.html', 'w+') as f:
     f.write(startHTML + endHTML)
 
-# webbrowser.open_new_tab('static_code_checker.html')
+webbrowser.open_new_tab('static_code_checker.html')
