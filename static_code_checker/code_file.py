@@ -1,33 +1,50 @@
 try:
-    from langauage import langauges
-except :
     from static_code_checker.langauage import langauges
-
+except ImportError:
+    from langauage import langauges
+    
 class File():
-    def __init__(self, file_loc: str, inputs: list, outputs: list):
+    def __init__(self, file_loc: str, inputs: list = [], outputs: list = []):
         self.file_loc = file_loc
-
+        self.tests = None
         self.languageType = None
-
-        self.cleared = True
 
         for i in langauges:
             if i.file_type in file_loc:
                 self.languageType = i
                 break
 
-        if self.languageType == None:
-            self.cleared = False
+        if self.languageType != None:
+                self.tests = self.run_tests(inputs, outputs)
+            
+        
 
-        self.inputs = inputs
-        self.outputs = outputs
-
-    def run_tests(self):
+    def run_tests(self, inputs, outputs):
+        template = '''
+        <div>
+        <p>{file_name}</p>
+        <div style="padding-left: 5%;">
+            {file_contents}
+        </div>
+        </>
+        </>
+        '''
         value = "<div>"
-        for i in range(self.inputs):
-            # file, args: list = None
-            value += compare(self.languageType.run_file(self.file_loc, self.inputs[i]), self.outputs[i])
-            value += "</div>"
+        for i in range(len(inputs)):
+            # file, args: list = None 
+            try:
+                value += template.replace('{file_name}', self.file_loc).replace('{file_contents}', compare(self.languageType.run_file(self.file_loc, inputs[i]), outputs[i]))
+            except :
+                value += template.replace('{file_name}', self.file_loc).replace('{file_contents}', compare(self.languageType.run_file(self.file_loc, inputs[i])))
+            
+        if len(inputs) == 0:
+            value += "<div>"
+            value += template.replace('{file_name}', self.file_loc).replace('{file_contents}', self.languageType.run_file(self.file_loc))
+        value += "</div>"
+
+        return value
+            
+            
             
 def compare(original_text: str, generated_text: str):
     """
